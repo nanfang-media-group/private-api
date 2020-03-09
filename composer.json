@@ -1,0 +1,26 @@
+{
+    "name": "southcn/private-api",
+    "require": {
+        "php": ">=7.1.0",
+        "abelhalo/api-proxy": "^1.6"
+    },
+    "require-dev": {
+        "orchestra/testbench": "~3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SouthCN\\PrivateApi\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SouthCN\\PrivateApi\\PrivateApiServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "prefer-stable": true
+}
