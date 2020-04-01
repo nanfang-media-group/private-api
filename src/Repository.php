@@ -3,6 +3,7 @@
 namespace SouthCN\PrivateApi;
 
 use AbelHalo\ApiProxy\ApiProxy;
+use Illuminate\Support\Arr;
 use SouthCN\PrivateApi\Repositories\ApiCache;
 use SouthCN\PrivateApi\Repositories\AuthenticationAlgorithm;
 use SouthCN\PrivateApi\Repositories\Guard;
@@ -47,9 +48,9 @@ class Repository
         $this->guard->run($this->app, $name);
 
         $preparer  = new Preparer($this->config[$name] ?? []);
-        $url       = array_get($this->config, "$name.url");
-        $hasFiles  = array_get($this->config, "$name.has_files", false);
-        $httpLogic = array_get($this->config, "$name.custom_http_logic");
+        $url       = Arr::get($this->config, "$name.url");
+        $hasFiles  = Arr::get($this->config, "$name.has_files", false);
+        $httpLogic = Arr::get($this->config, "$name.custom_http_logic");
 
         // Prepare API request
         $params = $preparer->cast($params);
@@ -73,7 +74,7 @@ class Repository
 
     protected function post(string $url, array $params, bool $withFiles = false)
     {
-        $cache = array_get($this->config, 'cache');
+        $cache = Arr::get($this->config, 'cache');
 
         if (!$withFiles) {
             $apiCache = new ApiCache($cache ?: '');

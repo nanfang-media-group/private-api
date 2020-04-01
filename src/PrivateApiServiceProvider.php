@@ -2,6 +2,7 @@
 
 namespace SouthCN\PrivateApi;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -25,7 +26,7 @@ class PrivateApiServiceProvider extends ServiceProvider
                     continue;
                 }
 
-                if (array_has($apiDefinition, 'route')) {
+                if (Arr::has($apiDefinition, 'route')) {
                     $path = $apiDefinition['route'];
                     $privateApi = [
                         'app' => $appName,

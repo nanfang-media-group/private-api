@@ -3,6 +3,7 @@
 namespace SouthCN\PrivateApi\Repositories;
 
 use AbelHalo\ApiProxy\ApiProxy;
+use Illuminate\Support\Arr;
 
 class Hook
 {
@@ -15,7 +16,7 @@ class Hook
 
     public function run(string $hook, ApiProxy $proxy, string &$url, array &$params): void
     {
-        if ($class = array_get($this->hooks, $hook)) {
+        if ($class = Arr::get($this->hooks, $hook)) {
             app($class)($proxy, $url, $params);
         }
     }
