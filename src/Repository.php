@@ -4,10 +4,10 @@ namespace SouthCN\PrivateApi;
 
 use AbelHalo\ApiProxy\ApiProxy;
 use Illuminate\Support\Arr;
-use SouthCN\PrivateApi\Repositories\ApiCache;
 use SouthCN\PrivateApi\Repositories\AuthenticationAlgorithm;
 use SouthCN\PrivateApi\Repositories\Guard;
 use SouthCN\PrivateApi\Repositories\Hook;
+use SouthCN\PrivateApi\Repositories\HttpClient;
 use SouthCN\PrivateApi\Repositories\HttpLogic;
 use SouthCN\PrivateApi\Repositories\Preparer;
 
@@ -40,16 +40,16 @@ class Repository
 
     /**
      * @param  string  $name
-     * @param  array   $params
+     * @param  array  $params
      * @return mixed
      */
     public function api(string $name, array $params = [])
     {
         $this->guard->run($this->app, $name);
 
-        $preparer  = new Preparer($this->config[$name] ?? []);
-        $url       = Arr::get($this->config, "$name.url");
-        $hasFiles  = Arr::get($this->config, "$name.has_files", false);
+        $preparer = new Preparer($this->config[$name] ?? []);
+        $url = Arr::get($this->config, "$name.url");
+        $hasFiles = Arr::get($this->config, "$name.has_files", false);
         $httpLogic = Arr::get($this->config, "$name.custom_http_logic");
 
         // Prepare API request
@@ -69,30 +69,10 @@ class Repository
             return $this->httpLogic->run($this->proxy, $url, $params);
         }
 
-        return $this->post($url, $params, $hasFiles);
-    }
+        $httpClient = new HttpClient($this->proxy, $this->authAlgorithm, $this->config['cache'] ?? '');
 
-    protected function post(string $url, array $params, bool $withFiles = false)
-    {
-        $cache = Arr::get($this->config, 'cache');
-
-        if (!$withFiles) {
-            $apiCache = new ApiCache($cache ?: '');
-            $key      = md5($this->authAlgorithm->app . $url . serialize($params));
-
-            if ($response = $apiCache->get($key)) {
-                return $response;
-            }
-        }
-        $response = $this->proxy->{$withFiles ? 'postWithFiles' : 'post'}(
-            $url,
-            $this->authAlgorithm->processParams($params)
-        );
-
-        if (!$withFiles) {
-            $apiCache->smartCache($key, $response);
-        }
-
-        return $response;
+        return $hasFiles
+            ? $httpClient->postWithFiles($url, $params)
+            : $httpClient->post($url, $params);
     }
 }
